@@ -1,11 +1,13 @@
-import os
 import json
+import os
 
 srcDirectory = './src'
 outDirectory = './build'
+includeDirectory = './src/include'
 fileEnding = '.cpp'
 headerFileEnding = '.hpp'
 mtimesPath = 'mtimes.json'
+recompileAll = True
 
 srcFiles = []
 headerFiles = []
@@ -33,7 +35,7 @@ newSourceFiles = []
 for index, value in enumerate(srcFiles):
 	fileChanged = True
 	if value in oldmtimes and newmtimes[value] == oldmtimes[value]:
-			fileChanged = False
+		fileChanged = recompileAll
 
 	if fileChanged:
 		newSourceFiles.append(value)
@@ -51,7 +53,7 @@ with open(mtimesPath, "w") as mtimesfile:
 	mtimesfile.write(json.dumps(newmtimes, indent=4))
 
 CXX = 'g++'
-CXXARGS = '-I ./src/include -Werror -Wpedantic -Wall'
+CXXARGS = '-MD -I ./src/include -Werror -Wpedantic -Wall'
 
 os.system(f'mkdir -p {outDirectory}/objects')
 
