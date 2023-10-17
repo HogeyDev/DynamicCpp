@@ -21,8 +21,6 @@ for root, _, files in os.walk(srcDirectory):
 			headerFiles.append(fullPath)
 			recursiveFileList.append(fullPath)
 
-print(recursiveFileList, srcFiles, headerFiles)
-
 oldmtimes = {}
 with open(mtimesPath, "r") as mtimesfile:
 	oldmtimes = json.load(mtimesfile)
@@ -55,12 +53,17 @@ with open(mtimesPath, "w") as mtimesfile:
 CXX = 'g++'
 CXXARGS = '-I ./src/include -Werror -Wpedantic -Wall'
 
+os.system(f'mkdir -p {outDirectory}/objects')
+
 for index, value in enumerate(srcFiles):
 	includesEditedHeader = False
 	for file in newHeaderFiles:
 		if f'#include <{file}>' in value or f'#include "{file}"' in value or f'#include<{file}>' in value or f'#include"{file}"' in value:
-			print(f'#include <{file} in {value}')
+			newSourceFiles.append(file)
 	outputPath = os.path.basename(value).split('/')[-1][:-len(fileEnding)] + '.o'
-	command = f'{CXX} {CXXARGS} {value} -o {outDirectory}/{outputPath}'
-	print(command)
+	command = f'{CXX} -c {CXXARGS} {value} -o {outDirectory}/objects/{outputPath}'
 	os.system(command)
+
+print(f'Built files: {newSourceFiles}')
+
+os.system(f'{CXX} {outDirectory}/objects/*.o -o {outDirectory}/main')
